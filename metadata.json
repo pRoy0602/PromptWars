@@ -1,0 +1,6 @@
+{
+  "name": "UniVerse Exchange",
+  "description": "Campus marketplace and community exchange platform for students to share resources, textbooks, electronics, notes, skills, and opportunities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
