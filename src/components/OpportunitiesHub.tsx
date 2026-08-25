@@ -18,6 +18,7 @@ import {
   Award,
   BookOpen,
   Filter,
+  X,
 } from 'lucide-react';
 
 export const OpportunitiesHub: React.FC = () => {
@@ -77,15 +78,24 @@ export const OpportunitiesHub: React.FC = () => {
 
       {/* Search & Category Filter Pills */}
       <div className="space-y-4">
-        <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5 pointer-events-none" />
+        <div className="relative flex items-center">
+          <Search className="w-5 h-5 text-cyan-400 absolute left-4 pointer-events-none z-10" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search opportunities: Hackathons, Robotics Research, UI/UX Workshops, Seed Grants..."
-            className="w-full pl-12 pr-4 py-3.5 bg-slate-900/70 backdrop-blur-xl text-sm text-slate-100 placeholder-slate-400 rounded-2xl border border-white/[0.08] focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 shadow-2xl outline-none transition-all"
+            className="w-full pl-12 pr-10 py-3.5 bg-slate-900/90 backdrop-blur-xl text-sm font-semibold text-white placeholder-slate-400 rounded-2xl border border-white/[0.18] focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 shadow-2xl outline-none transition-all"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3.5 p-1 rounded-full text-slate-400 hover:text-white cursor-pointer z-10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">

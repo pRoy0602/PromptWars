@@ -251,18 +251,18 @@ export const Marketplace: React.FC = () => {
 
         {/* Search Bar Input */}
         <div className="relative flex items-center">
-          <Search className="w-5 h-5 text-slate-400 absolute left-3.5 pointer-events-none" />
+          <Search className="w-5 h-5 text-emerald-400 absolute left-3.5 pointer-events-none z-10" />
           <input
             type="text"
             value={filters.searchQuery}
             onChange={(e) => setFilters((prev) => ({ ...prev, searchQuery: e.target.value }))}
             placeholder="Search textbooks, calculators, headphones, notes, tutors, tickets..."
-            className="w-full pl-11 pr-10 py-3 bg-neutral-950/90 text-sm sm:text-base text-slate-100 placeholder-slate-400 rounded-2xl border border-white/[0.1] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-2xl shadow-black outline-none transition-all"
+            className="w-full pl-11 pr-11 py-3.5 bg-neutral-950/95 text-sm sm:text-base font-semibold text-white placeholder-slate-400 rounded-2xl border border-white/[0.18] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30 shadow-2xl shadow-black outline-none transition-all"
           />
           {filters.searchQuery && (
             <button
               onClick={() => setFilters((prev) => ({ ...prev, searchQuery: '' }))}
-              className="absolute right-3 p-1 rounded-full text-slate-400 hover:text-slate-200 cursor-pointer"
+              className="absolute right-3.5 p-1 rounded-full text-slate-400 hover:text-white cursor-pointer z-10"
             >
               <X className="w-4 h-4" />
             </button>

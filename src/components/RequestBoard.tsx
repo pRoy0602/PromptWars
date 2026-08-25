@@ -299,24 +299,25 @@ export const RequestBoard: React.FC = () => {
           
           {/* Search Bar */}
           <div className="relative flex-1">
-            <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${
-              themeMode === 'light' ? 'text-slate-400' : 'text-slate-500'
+            <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 ${
+              themeMode === 'light' ? 'text-slate-500' : 'text-amber-400'
             }`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search wanted items by title, course code (e.g. MATH 220), keywords, or student..."
-              className={`w-full pl-10 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all ${
+              className={`w-full pl-10 pr-10 py-3 rounded-2xl border text-sm font-semibold outline-none transition-all ${
                 themeMode === 'light'
-                  ? 'bg-white border-slate-200 text-slate-900 focus:border-amber-500 shadow-sm'
-                  : 'bg-neutral-950 border-white/[0.08] text-white focus:border-amber-500'
+                  ? 'bg-white border-slate-300 text-slate-950 placeholder-slate-500 focus:border-amber-500 shadow-sm'
+                  : 'bg-neutral-950/95 border-white/[0.18] text-white placeholder-slate-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20'
               }`}
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer z-10"
               >
                 <X className="w-4 h-4" />
               </button>

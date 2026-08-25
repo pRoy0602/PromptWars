@@ -27,6 +27,7 @@ import {
   Heart,
   ChevronRight,
   Zap,
+  X,
 } from 'lucide-react';
 
 export const HeroLanding: React.FC = () => {
@@ -210,21 +211,30 @@ export const HeroLanding: React.FC = () => {
                   : 'bg-neutral-950/80 border-white/[0.12] shadow-black focus-within:border-emerald-500/70 focus-within:ring-2 focus-within:ring-emerald-500/20'
               }`}
             >
-              <div className="flex-1 flex items-center gap-2.5 w-full pl-3">
+              <div className="flex-1 flex items-center gap-2.5 w-full pl-3 pr-2">
                 <Search className={`w-5 h-5 shrink-0 ${
-                  themeMode === 'light' ? 'text-slate-400' : 'text-slate-400'
+                  themeMode === 'light' ? 'text-slate-500' : 'text-emerald-400'
                 }`} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Items, courses, calculators, tutors, tickets..."
-                  className={`w-full py-2 text-sm sm:text-base bg-transparent focus:outline-none ${
+                  placeholder="Search textbooks, calculators, courses, tutors, tickets..."
+                  className={`w-full py-2.5 text-sm sm:text-base font-semibold bg-transparent focus:outline-none ${
                     themeMode === 'light'
-                      ? 'text-slate-900 placeholder-slate-400'
-                      : 'text-slate-100 placeholder-slate-400'
+                      ? 'text-slate-950 placeholder-slate-500'
+                      : 'text-white placeholder-slate-400'
                   }`}
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="p-1 rounded-full text-slate-400 hover:text-white cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button

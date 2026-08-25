@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp, NavPage, PlanetTheme } from '../context/AppContext';
 import { soundFX } from '../utils/soundFx';
 import {
@@ -21,6 +21,11 @@ import {
   Moon,
   LogIn,
   Zap,
+  Palette,
+  Check,
+  Compass,
+  Sliders,
+  ChevronDown,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -45,9 +50,31 @@ export const Navbar: React.FC = () => {
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNightSettingsOpen, setIsNightSettingsOpen] = useState(false);
   const [navSearch, setNavSearch] = useState(filters.searchQuery);
   const [isAudioEnabled, setIsAudioEnabled] = useState(soundFX.enabled);
   const [telemetry, setTelemetry] = useState({ percent: 0, sector: 1, isWarp: false });
+  const settingsModalRef = useRef<HTMLDivElement | null>(null);
+
+  // Synchronize search input with global filter state
+  useEffect(() => {
+    setNavSearch(filters.searchQuery);
+  }, [filters.searchQuery]);
+
+  // Close settings popover on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (settingsModalRef.current && !settingsModalRef.current.contains(e.target as Node)) {
+        setIsNightSettingsOpen(false);
+      }
+    };
+    if (isNightSettingsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNightSettingsOpen]);
 
   // Real-time altitude & sector scroll telemetry
   useEffect(() => {
@@ -117,6 +144,55 @@ export const Navbar: React.FC = () => {
     soundFX.playPop(520, 0.05);
     setCurrentPage(page);
   };
+
+  const planetThemeOptions: {
+    id: PlanetTheme;
+    name: string;
+    subtitle: string;
+    dotClass: string;
+    glowColor: string;
+    borderClass: string;
+    activeRingClass: string;
+  }[] = [
+    {
+      id: 'emerald',
+      name: 'Emerald Terra',
+      subtitle: 'SRM Campus verdant aura & crystal rings',
+      dotClass: 'bg-emerald-400',
+      glowColor: '#10b981',
+      borderClass: 'border-emerald-500/40 hover:border-emerald-400',
+      activeRingClass: 'ring-2 ring-emerald-400 border-emerald-400 shadow-emerald-500/30',
+    },
+    {
+      id: 'cyan',
+      name: 'Hyperion Cyan',
+      subtitle: 'Azure ringed gas giant & glacial ice',
+      dotClass: 'bg-cyan-400',
+      glowColor: '#06b6d4',
+      borderClass: 'border-cyan-500/40 hover:border-cyan-400',
+      activeRingClass: 'ring-2 ring-cyan-400 border-cyan-400 shadow-cyan-500/30',
+    },
+    {
+      id: 'violet',
+      name: 'Kepler Violet',
+      subtitle: 'Mystic nebula planet & cosmic rays',
+      dotClass: 'bg-purple-400',
+      glowColor: '#a855f7',
+      borderClass: 'border-purple-500/40 hover:border-purple-400',
+      activeRingClass: 'ring-2 ring-purple-400 border-purple-400 shadow-purple-500/30',
+    },
+    {
+      id: 'amber',
+      name: 'Solaris Amber',
+      subtitle: 'Warm golden sun giant & solar motes',
+      dotClass: 'bg-amber-400',
+      glowColor: '#f59e0b',
+      borderClass: 'border-amber-500/40 hover:border-amber-400',
+      activeRingClass: 'ring-2 ring-amber-400 border-amber-400 shadow-amber-500/30',
+    },
+  ];
+
+  const currentThemeMeta = planetThemeOptions.find((p) => p.id === activePlanetTheme) || planetThemeOptions[0];
 
   const navItems: { page: NavPage; label: string; icon: React.ReactNode; badge?: number }[] = [
     { page: 'marketplace', label: 'Marketplace', icon: <Layers className="w-4 h-4" /> },
@@ -213,85 +289,44 @@ export const Navbar: React.FC = () => {
                 </>
               )}
             </div>
-
-            {/* TOP BAR PLANET COLOR THEME PALETTE (IN NIGHT MODE) */}
-            {themeMode === 'dark' && (
-              <div className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded-full bg-neutral-950/90 border border-white/[0.12] shadow-inner select-none" title="Select Planet Color Palette">
-                <button
-                  onClick={() => {
-                    soundFX.playPop(480, 0.04);
-                    setActivePlanetTheme('emerald');
-                  }}
-                  title="Emerald Terra Planet"
-                  className={`w-3.5 h-3.5 rounded-full transition-all cursor-pointer ${
-                    activePlanetTheme === 'emerald'
-                      ? 'bg-emerald-400 ring-2 ring-emerald-400/60 scale-110 shadow-md shadow-emerald-500/50'
-                      : 'bg-emerald-950 hover:bg-emerald-800 border border-emerald-500/40'
-                  }`}
-                  aria-label="Emerald Terra Theme"
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(540, 0.04);
-                    setActivePlanetTheme('cyan');
-                  }}
-                  title="Hyperion Cyan Gas Giant"
-                  className={`w-3.5 h-3.5 rounded-full transition-all cursor-pointer ${
-                    activePlanetTheme === 'cyan'
-                      ? 'bg-cyan-400 ring-2 ring-cyan-400/60 scale-110 shadow-md shadow-cyan-500/50'
-                      : 'bg-cyan-950 hover:bg-cyan-800 border border-cyan-500/40'
-                  }`}
-                  aria-label="Hyperion Cyan Theme"
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(600, 0.04);
-                    setActivePlanetTheme('violet');
-                  }}
-                  title="Kepler Violet Nebula World"
-                  className={`w-3.5 h-3.5 rounded-full transition-all cursor-pointer ${
-                    activePlanetTheme === 'violet'
-                      ? 'bg-purple-400 ring-2 ring-purple-400/60 scale-110 shadow-md shadow-purple-500/50'
-                      : 'bg-purple-950 hover:bg-purple-800 border border-purple-500/40'
-                  }`}
-                  aria-label="Kepler Violet Theme"
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(660, 0.04);
-                    setActivePlanetTheme('amber');
-                  }}
-                  title="Solaris Sun Giant"
-                  className={`w-3.5 h-3.5 rounded-full transition-all cursor-pointer ${
-                    activePlanetTheme === 'amber'
-                      ? 'bg-amber-400 ring-2 ring-amber-400/60 scale-110 shadow-md shadow-amber-500/50'
-                      : 'bg-amber-950 hover:bg-amber-800 border border-amber-500/40'
-                  }`}
-                  aria-label="Solaris Amber Theme"
-                />
-              </div>
-            )}
           </div>
 
-          {/* Desktop Search Bar */}
+          {/* Desktop Search Bar - Visible on md+ screens */}
           <form
             onSubmit={handleNavSearchSubmit}
-            className="hidden lg:flex flex-1 max-w-xs xl:max-w-sm relative items-center"
+            className="hidden md:flex flex-1 max-w-[200px] lg:max-w-xs xl:max-w-sm relative items-center"
           >
-            <Search className={`w-4 h-4 absolute left-3.5 pointer-events-none ${
+            <Search className={`w-4 h-4 absolute left-3.5 pointer-events-none z-10 ${
               themeMode === 'light' ? 'text-slate-500' : 'text-slate-400'
             }`} />
             <input
               type="text"
               value={navSearch}
-              onChange={(e) => setNavSearch(e.target.value)}
-              placeholder="Search textbooks, gear, notes..."
-              className={`w-full pl-9 pr-4 py-1.5 text-xs rounded-full border outline-none transition-all ${
+              onChange={(e) => {
+                setNavSearch(e.target.value);
+                if (currentPage === 'marketplace') {
+                  setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
+                }
+              }}
+              placeholder="Search items, textbooks, notes..."
+              className={`w-full pl-9 pr-8 py-1.5 text-xs font-semibold rounded-full border outline-none transition-all ${
                 themeMode === 'light'
-                  ? 'bg-slate-100 hover:bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-400 border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
-                  : 'bg-neutral-950/90 hover:bg-neutral-900 focus:bg-black text-slate-100 placeholder-slate-400 border-white/[0.1] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20'
+                  ? 'bg-slate-100 hover:bg-slate-50 focus:bg-white text-slate-950 placeholder-slate-500 border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20'
+                  : 'bg-neutral-950/95 hover:bg-neutral-900 focus:bg-black text-white placeholder-slate-400 border-white/[0.18] focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30'
               }`}
             />
+            {navSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setNavSearch('');
+                  setFilters((prev) => ({ ...prev, searchQuery: '' }));
+                }}
+                className="absolute right-2.5 p-0.5 rounded-full text-slate-400 hover:text-white dark:hover:text-white cursor-pointer z-10"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </form>
 
           {/* Desktop Navigation Links */}
@@ -325,7 +360,7 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Action CTAs */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 relative">
             
             {/* Mode Changer (Cosmic Night / Solar Day with Sun Transition) */}
             <button
@@ -349,6 +384,193 @@ export const Navbar: React.FC = () => {
                 </>
               )}
             </button>
+
+            {/* NIGHT MODE SETTINGS & PLANET PALETTE BUTTON */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  soundFX.playPop(520, 0.05);
+                  setIsNightSettingsOpen(!isNightSettingsOpen);
+                }}
+                title="Night Mode Settings & Planet Palette"
+                className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border transition-all flex items-center justify-center gap-1.5 text-xs cursor-pointer ${
+                  isNightSettingsOpen
+                    ? themeMode === 'light'
+                      ? 'bg-emerald-100 text-emerald-900 border-emerald-400 shadow-md'
+                      : 'bg-neutral-900 text-white border-emerald-400 shadow-lg shadow-emerald-500/20'
+                    : themeMode === 'light'
+                    ? 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-300'
+                    : 'bg-neutral-950/90 hover:bg-neutral-900 text-slate-200 border-white/[0.12]'
+                }`}
+                aria-label="Night Mode Settings"
+              >
+                <div className="relative flex items-center justify-center">
+                  <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                  <span
+                    className="absolute -top-1 -right-1 w-2 h-2 rounded-full border border-black animate-pulse"
+                    style={{ backgroundColor: currentThemeMeta.glowColor }}
+                  />
+                </div>
+                <span className="hidden md:inline text-[11px] font-bold">
+                  {themeMode === 'dark' ? currentThemeMeta.name.split(' ')[0] : 'Themes'}
+                </span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${isNightSettingsOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* NIGHT MODE SETTINGS POPOVER DIALOG */}
+              {isNightSettingsOpen && (
+                <div
+                  ref={settingsModalRef}
+                  className={`absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border shadow-2xl p-4 z-50 backdrop-blur-2xl transition-all animate-in fade-in zoom-in-95 duration-150 ${
+                    themeMode === 'light'
+                      ? 'bg-white/98 border-slate-300 text-slate-900 shadow-slate-400/30'
+                      : 'bg-neutral-950/98 border-white/[0.15] text-white shadow-black'
+                  }`}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-white/[0.08] mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-emerald-500 to-indigo-600 flex items-center justify-center text-slate-950">
+                        <Sparkles className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-extrabold uppercase tracking-wider font-mono">
+                          Celestial Environment
+                        </h4>
+                        <p className="text-[10px] text-slate-400">Night Mode & Campus Aura</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setIsNightSettingsOpen(false)}
+                      className="p-1 rounded-lg hover:bg-white/[0.1] text-slate-400 hover:text-white cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Mode Selector Card */}
+                  <div className={`p-2.5 rounded-xl border mb-3 flex items-center justify-between ${
+                    themeMode === 'light' ? 'bg-slate-100 border-slate-200' : 'bg-neutral-900/80 border-white/[0.08]'
+                  }`}>
+                    <div className="text-xs">
+                      <div className="font-bold flex items-center gap-1.5">
+                        {themeMode === 'dark' ? <Moon className="w-3.5 h-3.5 text-indigo-400" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+                        <span>{themeMode === 'dark' ? 'Cosmic Night Mode' : 'Solar Day Mode'}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">
+                        {themeMode === 'dark' ? 'Starfield, planets & dark UI' : 'Day sky & high-contrast UI'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleThemeToggle}
+                      className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all cursor-pointer"
+                    >
+                      Switch to {themeMode === 'dark' ? 'Day' : 'Night'}
+                    </button>
+                  </div>
+
+                  {/* Planet Theme Picker */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center justify-between text-[11px] font-mono font-bold">
+                      <span className="text-slate-300">CELESTIAL PLANET PALETTE</span>
+                      <span className="text-emerald-400">{currentThemeMeta.name}</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {planetThemeOptions.map((planet) => {
+                        const isSelected = activePlanetTheme === planet.id;
+                        return (
+                          <button
+                            key={planet.id}
+                            onClick={() => {
+                              soundFX.playPop(520, 0.05);
+                              setActivePlanetTheme(planet.id);
+                              if (themeMode !== 'dark') {
+                                toggleThemeMode();
+                              }
+                            }}
+                            className={`flex items-center justify-between p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                              isSelected
+                                ? themeMode === 'light'
+                                  ? 'bg-emerald-50 border-emerald-500 shadow-sm'
+                                  : 'bg-neutral-900 border-emerald-400 shadow-md shadow-emerald-950'
+                                : themeMode === 'light'
+                                ? 'bg-slate-50 hover:bg-slate-100 border-slate-200'
+                                : 'bg-neutral-900/40 hover:bg-neutral-900 border-white/[0.06]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className={`w-5 h-5 rounded-full ${planet.dotClass} ${
+                                  isSelected ? 'ring-2 ring-white/60 scale-110 shadow-lg' : 'opacity-80'
+                                } flex items-center justify-center shrink-0`}
+                                style={{ boxShadow: isSelected ? `0 0 12px ${planet.glowColor}` : 'none' }}
+                              />
+                              <div>
+                                <div className="text-xs font-bold flex items-center gap-1.5">
+                                  <span>{planet.name}</span>
+                                  {isSelected && (
+                                    <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold">
+                                      ACTIVE
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-slate-400 leading-tight truncate max-w-[200px]">
+                                  {planet.subtitle}
+                                </div>
+                              </div>
+                            </div>
+                            {isSelected && <Check className="w-4 h-4 text-emerald-400 shrink-0 ml-2" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Elevation & Sector HUD */}
+                  <div className={`p-2 rounded-xl border mb-3 flex items-center justify-between text-[11px] font-mono ${
+                    themeMode === 'light' ? 'bg-slate-50 border-slate-200 text-slate-700' : 'bg-neutral-900/70 border-white/[0.06] text-slate-300'
+                  }`}>
+                    <div className="flex items-center gap-1.5">
+                      <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>{themeMode === 'light' ? 'SURFACE ELEVATION' : `SECTOR 0${telemetry.sector}`}</span>
+                    </div>
+                    <div className="font-bold text-emerald-400">
+                      {telemetry.percent}% {themeMode === 'light' ? 'SCROLL' : 'ALTITUDE'}
+                    </div>
+                  </div>
+
+                  {/* Cosmic Canvas Click Tip */}
+                  <div className="p-2 rounded-lg bg-emerald-950/30 border border-emerald-500/20 text-[10px] text-emerald-300 flex items-start gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>
+                      Tap or click anywhere on the background canvas to generate twinkling starbursts & celestial rays!
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Direct Quick Planet Swatches (Visible on sm+ in Dark Mode) */}
+            {themeMode === 'dark' && (
+              <div className="hidden sm:flex items-center gap-1 px-1.5 py-1 rounded-xl bg-neutral-950/80 border border-white/[0.08]" title="Quick Planet Theme Selector">
+                {planetThemeOptions.map((planet) => (
+                  <button
+                    key={planet.id}
+                    onClick={() => {
+                      soundFX.playPop(520, 0.05);
+                      setActivePlanetTheme(planet.id);
+                    }}
+                    title={planet.name}
+                    className={`w-3.5 h-3.5 rounded-full transition-all cursor-pointer ${
+                      activePlanetTheme === planet.id
+                        ? `${planet.dotClass} ring-2 ring-white/80 scale-110 shadow-md`
+                        : `${planet.dotClass} opacity-40 hover:opacity-100`
+                    }`}
+                    aria-label={planet.name}
+                  />
+                ))}
+              </div>
+            )}
 
             {/* Interactive Audio SFX Toggle */}
             <button
@@ -490,87 +712,87 @@ export const Navbar: React.FC = () => {
             ? 'bg-white/98 border-slate-200 text-slate-900'
             : 'bg-black/98 border-white/[0.08] text-slate-100'
         }`}>
-          <form onSubmit={handleNavSearchSubmit} className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <form onSubmit={handleNavSearchSubmit} className="relative flex items-center">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
               value={navSearch}
-              onChange={(e) => setNavSearch(e.target.value)}
-              placeholder="Search items, notes, tutors..."
-              className={`w-full pl-9 pr-4 py-2 text-sm rounded-xl border focus:outline-none ${
+              onChange={(e) => {
+                setNavSearch(e.target.value);
+                if (currentPage === 'marketplace') {
+                  setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
+                }
+              }}
+              placeholder="Search items, notes, tutors, gear..."
+              className={`w-full pl-9 pr-9 py-2.5 text-sm font-semibold rounded-xl border focus:outline-none transition-all ${
                 themeMode === 'light'
-                  ? 'bg-slate-100 text-slate-900 placeholder-slate-500 border-slate-300 focus:border-emerald-500'
-                  : 'bg-neutral-950 text-slate-100 placeholder-slate-400 border-white/[0.1] focus:border-emerald-500'
+                  ? 'bg-slate-100 text-slate-950 placeholder-slate-500 border-slate-300 focus:border-emerald-500'
+                  : 'bg-neutral-950 text-white placeholder-slate-400 border-white/[0.18] focus:border-emerald-400'
               }`}
             />
+            {navSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setNavSearch('');
+                  setFilters((prev) => ({ ...prev, searchQuery: '' }));
+                }}
+                className="absolute right-3 p-1 rounded-full text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </form>
 
           {/* Mobile Telemetry & Planet Color Theme Selector */}
-          <div className={`p-2.5 rounded-xl border flex flex-wrap items-center justify-between gap-2 text-xs ${
+          <div className={`p-3 rounded-xl border space-y-2.5 text-xs ${
             themeMode === 'light' ? 'bg-slate-50 border-slate-200' : 'bg-neutral-950 border-white/[0.08]'
           }`}>
-            <div className="flex items-center gap-1.5 font-mono text-[11px]">
-              <span className={`w-2 h-2 rounded-full ${themeMode === 'light' ? 'bg-amber-500' : 'bg-emerald-400'} animate-pulse`} />
-              <span className="font-bold">
-                {themeMode === 'light' ? 'SOLAR DAY' : `SECTOR 0${telemetry.sector}`}
-              </span>
-              <span className="text-slate-400">|</span>
-              <span className={themeMode === 'light' ? 'text-amber-700 font-semibold' : 'text-emerald-400 font-semibold'}>
-                {telemetry.percent}% {themeMode === 'light' ? 'SCROLL' : 'ALT'}
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 font-mono text-[11px]">
+                <span className={`w-2 h-2 rounded-full ${themeMode === 'light' ? 'bg-amber-500' : 'bg-emerald-400'} animate-pulse`} />
+                <span className="font-bold">
+                  {themeMode === 'light' ? 'SOLAR DAY' : `SECTOR 0${telemetry.sector}`}
+                </span>
+                <span className="text-slate-400">|</span>
+                <span className={themeMode === 'light' ? 'text-amber-700 font-semibold' : 'text-emerald-400 font-semibold'}>
+                  {telemetry.percent}% {themeMode === 'light' ? 'SCROLL' : 'ALT'}
+                </span>
+              </div>
+
+              <button
+                onClick={() => {
+                  soundFX.playPop(520, 0.05);
+                  setIsNightSettingsOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold cursor-pointer"
+              >
+                <Sliders className="w-3 h-3" />
+                <span>All Settings</span>
+              </button>
             </div>
 
             {themeMode === 'dark' && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-slate-400 font-mono">PLANET:</span>
-                <button
-                  onClick={() => {
-                    soundFX.playPop(480, 0.04);
-                    setActivePlanetTheme('emerald');
-                  }}
-                  title="Emerald Terra Planet"
-                  className={`w-4 h-4 rounded-full transition-all ${
-                    activePlanetTheme === 'emerald'
-                      ? 'bg-emerald-400 ring-2 ring-emerald-400/60 scale-110 shadow-md shadow-emerald-500/50'
-                      : 'bg-emerald-950 border border-emerald-500/40'
-                  }`}
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(540, 0.04);
-                    setActivePlanetTheme('cyan');
-                  }}
-                  title="Hyperion Cyan Gas Giant"
-                  className={`w-4 h-4 rounded-full transition-all ${
-                    activePlanetTheme === 'cyan'
-                      ? 'bg-cyan-400 ring-2 ring-cyan-400/60 scale-110 shadow-md shadow-cyan-500/50'
-                      : 'bg-cyan-950 border border-cyan-500/40'
-                  }`}
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(600, 0.04);
-                    setActivePlanetTheme('violet');
-                  }}
-                  title="Kepler Violet Nebula World"
-                  className={`w-4 h-4 rounded-full transition-all ${
-                    activePlanetTheme === 'violet'
-                      ? 'bg-purple-400 ring-2 ring-purple-400/60 scale-110 shadow-md shadow-purple-500/50'
-                      : 'bg-purple-950 border border-purple-500/40'
-                  }`}
-                />
-                <button
-                  onClick={() => {
-                    soundFX.playPop(660, 0.04);
-                    setActivePlanetTheme('amber');
-                  }}
-                  title="Solaris Sun Giant"
-                  className={`w-4 h-4 rounded-full transition-all ${
-                    activePlanetTheme === 'amber'
-                      ? 'bg-amber-400 ring-2 ring-amber-400/60 scale-110 shadow-md shadow-amber-500/50'
-                      : 'bg-amber-950 border border-amber-500/40'
-                  }`}
-                />
+              <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
+                <span className="text-[10px] text-slate-400 font-mono">PLANET: <span className="text-emerald-400 font-bold">{currentThemeMeta.name}</span></span>
+                <div className="flex items-center gap-2">
+                  {planetThemeOptions.map((planet) => (
+                    <button
+                      key={planet.id}
+                      onClick={() => {
+                        soundFX.playPop(520, 0.05);
+                        setActivePlanetTheme(planet.id);
+                      }}
+                      title={planet.name}
+                      className={`w-4 h-4 rounded-full transition-all cursor-pointer ${
+                        activePlanetTheme === planet.id
+                          ? `${planet.dotClass} ring-2 ring-white/80 scale-110 shadow-md`
+                          : `${planet.dotClass} opacity-40 hover:opacity-100`
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>

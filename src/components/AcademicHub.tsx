@@ -174,15 +174,24 @@ export const AcademicHub: React.FC = () => {
 
       {/* Filter Section: Search, Department, Semester, Resource Type */}
       <div className="bg-slate-900/70 backdrop-blur-xl p-5 rounded-3xl border border-white/[0.08] shadow-2xl space-y-4">
-        <div className="relative">
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5 pointer-events-none" />
+        <div className="relative flex items-center">
+          <Search className="w-5 h-5 text-indigo-400 absolute left-4 pointer-events-none z-10" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Course (e.g. CS 301, EE 210), Subject, or Topic..."
-            className="w-full pl-12 pr-4 py-3 bg-slate-950/60 text-sm text-slate-100 placeholder-slate-400 rounded-2xl border border-white/[0.08] focus:bg-slate-950 focus:border-indigo-500 focus:outline-none transition-all"
+            className="w-full pl-12 pr-10 py-3.5 bg-slate-950/90 text-sm font-semibold text-white placeholder-slate-400 rounded-2xl border border-white/[0.18] focus:bg-black focus:border-indigo-400 focus:outline-none transition-all"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3.5 p-1 rounded-full text-slate-400 hover:text-white cursor-pointer z-10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
